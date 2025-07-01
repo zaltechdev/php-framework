@@ -12,28 +12,17 @@ class Session{
             if(self::$status === PHP_SESSION_DISABLED){
                 throw new \Exception("PHP session currently disabled!");
             }
-            
-            $driver = new SessionDriver();
-            if(!session_set_save_handler($driver,true)){
-                throw new \Exception("Failed to set session handler!");
-            }
-            else if(!session_name(Environment::env("session_cookie_idname"))){
-                throw new \Exception("Failed to set session id name!");                
-            }
-            else if(!session_set_cookie_params([
-                "httponly" => true,
-                "samesite" => "Strict"
-            ])){
-                throw new \Exception("Failed to set PHP session cookie params!");
-            }
             else if(self::$status === PHP_SESSION_NONE){
+                if(!session_set_save_handler(new SessionDriver(),true)){
+                    throw new \Exception("Failed to set session handler!");
+                }
+                
+                if(!session_name(Environment::env("session_cookie_idname"))){
+                    throw new \Exception("Failed to set PHP session id name!");                
+                }
+                
                 if(!session_start()){
                     throw new \Exception("Failed to start session!");
-                }      
-                
-                $gc = $driver->gc();
-                if(is_bool($gc) && $gc == false){
-                    throw new \Exception("Failed to execute session garbage collection!");
                 }
             }
         }

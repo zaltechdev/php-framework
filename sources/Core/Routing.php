@@ -127,8 +127,7 @@ class Routing {
 						self::internalError();
 					}
 					
-					$controller = new $controller_class();
-					$return = $controller->$controller_method();
+					$return = (new $controller_class())->$controller_method();
 				}
 				else{
 					$controller_function = $route['controller'];

@@ -21,8 +21,7 @@ class Environment{
 				throw new InvalidPathException("Env file does not exist, invalid path, or missing!");
 			}
 			
-			$dotenv = \Dotenv\Dotenv::createImmutable(ROOT_DIR);
-			$dotenv->safeLoad();
+			\Dotenv\Dotenv::createImmutable(ROOT_DIR)->safeLoad();
 		}
 		catch(InvalidFileException $error){
 			$this->catchEnvError($error);

@@ -93,7 +93,6 @@ function get_user_device_info(){
 	}
 
 	$device .= $type_os;
-	
 	return $device;
 }
 
