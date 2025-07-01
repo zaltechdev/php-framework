@@ -16,26 +16,29 @@ class Crypto{
 	}
 
     public function __construct(){
-        $algo = Environment::env("encrypt_algo_method");
-        $key = Environment::env("encrypt_keyphrase");
-
-        try{
-            $symmetric = new Symmetric();
-            $symmetric->setMethod($algo);
-
-            if(openssl_cipher_key_length($algo) !== strlen($key)){
-                throw new InvalidKeyException("Invalid encryption keyphrase. Character must equal with algorithm method!");
+        if(self::$symmetric === null){
+            $algo = Environment::env("encrypt_algo_method");
+            $key = Environment::env("encrypt_keyphrase");
+    
+            try{
+                $symmetric = new Symmetric();
+                $symmetric->setMethod($algo);
+    
+                if(openssl_cipher_key_length($algo) !== strlen($key)){
+                    throw new InvalidKeyException("Invalid encryption keyphrase. Character must equal with algorithm method!");
+                }
+    
+                $symmetric->setKey($key);
             }
-
-            $symmetric->setKey($key);
-            self::$symmetric = $symmetric;
+            catch(InvalidKeyException $error){
+                $this->catchCryptoError($error);
+            }
+            catch(MethodNotSupportedException $error){
+                $this->catchCryptoError($error);
+            }
         }
-        catch(InvalidKeyException $error){
-			$this->catchCryptoError($error);
-        }
-        catch(MethodNotSupportedException $error){
-			$this->catchCryptoError($error);
-        }
+                
+        self::$symmetric = $symmetric;
     }
 
     public static function encrypt(string $plain_string){

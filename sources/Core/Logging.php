@@ -12,22 +12,29 @@ class Logging{
         ini_set("display_errors",0);
     }
 
+    private function errorReportingHandler(){
+		$mode = Environment::env("app_mode");
+		if($mode === APP_MODE_PROD){
+			$this->turnOffErrorDisplay();
+		}
+		else if($mode === APP_MODE_MAIN){
+			$this->turnOffErrorDisplay();
+			Routing::unavailable();
+		}
+    }
+
+    private function timezoneSetting(){
+        $timezone = Environment::env("app_timezone");
+        if(!in_array($timezone,timezone_identifiers_list())){
+            throw new \Exception("Invalid timezone setting value!");
+        }
+        date_default_timezone_set($timezone);
+    }
+
     public function __construct(){
-        try{			
-			$mode = Environment::env("app_mode");
-			if($mode === APP_MODE_PROD){
-				$this->turnOffErrorDisplay();
-			}
-			else if($mode === APP_MODE_MAIN){
-				$this->turnOffErrorDisplay();
-				Routing::unavailable();
-			}
-		
-            $timezone = Environment::env("app_timezone");
-            if(!in_array($timezone,timezone_identifiers_list())){
-                throw new \Exception("Invalid timezone setting value!");
-            }
-            date_default_timezone_set($timezone);
+        try{
+            $this->errorReportingHandler();
+            $this->timezoneSetting();
         }
         catch(\Exception $error){
             self::record("error",$error,self::class);
@@ -35,23 +42,30 @@ class Logging{
         }
     }
 
-    public static function record(string $level, string | \Throwable $message, string $trace){
-        $log_timezone = new \DateTimeZone(DEFAULT_TIMEZONE);
-        $log_datetime = new \DateTime("now",$log_timezone);
+    private static array $loggers = [];
 
-        $log = new Logger($trace);
-        $log->setTimezone($log_timezone);
-        $log->pushHandler(new StreamHandler(LOG_DIR . $log_datetime->format("d-m-Y") . ".log"));
-        
-        $message = is_string($message) ? $message : $message->getMessage();
+    private static function getLogger(string $trace): Logger {
+        $filename_with_datetime_format = (new \DateTime("now", new \DateTimeZone(DEFAULT_TIMEZONE)))->format("d-m-Y");
 
-        if(method_exists(Logger::class, $level)){
-            $log->$level($message);
-        } else { 
-            $log->debug($message);
+        if (!isset(self::$loggers[$trace])) {
+            $logger = new Logger($trace);
+            $logger->setTimezone(new \DateTimeZone(DEFAULT_TIMEZONE));
+            $logger->pushHandler(new StreamHandler(LOG_DIR . "$filename_with_datetime_format.log"));
+            self::$loggers[$trace] = $logger;
         }
 
-        $log->close();
-        unset($log, $log_timezone, $log_datetime);
-    } 
+        return self::$loggers[$trace];
+    }
+
+    public static function record(string $level, string|\Throwable $message, string $trace) {
+        $logger = self::getLogger($trace);
+        $msg = is_string($message) ? $message : $message->getMessage();
+
+        if (method_exists($logger, $level)) {
+            $logger->$level($msg);
+        } 
+        else {
+            $logger->debug($msg);
+        }
+    }
 }
