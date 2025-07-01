@@ -3,11 +3,13 @@
 namespace App\Core;
 
 class Session{
+
+    private static $status;
     
     public function __construct(){
         try{
-            $status = session_status();
-            if($status === PHP_SESSION_DISABLED){
+            self::$status = session_status();
+            if(self::$status === PHP_SESSION_DISABLED){
                 throw new \Exception("PHP session currently disabled!");
             }
             
@@ -24,13 +26,11 @@ class Session{
             ])){
                 throw new \Exception("Failed to set PHP session cookie params!");
             }
-            else if($status === PHP_SESSION_NONE){
+            else if(self::$status === PHP_SESSION_NONE){
                 if(!session_start()){
                     throw new \Exception("Failed to start session!");
-                }
-                if(!session_regenerate_id(true)){
-                    throw new \Exception("Failed to regenerate session id!");
                 }      
+                
                 $gc = $driver->gc();
                 if(is_bool($gc) && $gc == false){
                     throw new \Exception("Failed to execute session garbage collection!");
@@ -40,6 +40,19 @@ class Session{
         catch(\Exception $error){
             Logging::record("error",$error,self::class);
             Routing::internalError();
+        }
+    }
+
+    public static function regenerateSessionId(){
+        try{
+            if(self::$status === PHP_SESSION_ACTIVE){
+                if(!session_regenerate_id(true)){
+                    throw new \Exception("Failed to regenerate session id!");
+                }
+            }
+        }
+        catch(\Exception $error){
+            Logging::record("error",$error,self::class);
         }
     }
 }

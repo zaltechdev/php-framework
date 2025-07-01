@@ -96,3 +96,7 @@ function get_user_device_info(){
 	
 	return $device;
 }
+
+function url(string $path){
+	return rtrim(App\Core\Environment::env("base_url"),"/") . "/" . ltrim($path,"/");
+}
