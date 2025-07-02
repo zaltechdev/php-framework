@@ -120,27 +120,26 @@ class Routing {
 		foreach($this->routes as $route){
 			if(hash_equals($route['path'],$this->uri)){
 
-				$return = [];
+				$return = null;
 
 				if(!empty($route['middleware'])){
-					foreach($route['middleware'] as $middlewares){
-						if(!is_callable($route['middleware'])){
+					if(!is_callable($route['middleware'])){
 
-							[$middleware_class,$middleware_method] = [$route['middleware'][0] ?? "",$route['middleware'][1] ?? ""];
+						[$middleware_class,$middleware_method] = [$route['middleware'][0] ?? "",$route['middleware'][1] ?? ""];
 
-							if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
-								self::catchRouterError("Class middleware or method middleware does not exist!");
-								self::internalError();
-							}
-	
-							$return = (new $middleware_class)->$middleware_method();
+						if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
+							self::catchRouterError("Class middleware or method middleware does not exist!");
+							self::internalError();
 						}
-						else{
-							$middleware_function = $route['middleware'];
-							$return = $middleware_function();	
-						}
+
+						$return = (new $middleware_class)->$middleware_method();
+					}
+					else{
+						$middleware_function = $route['middleware'];
+						$return = $middleware_function();	
 					}
 				}
+			
 
 				if(!is_callable($route['controller'])){
 
