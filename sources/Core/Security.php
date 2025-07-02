@@ -25,7 +25,7 @@ class Security{
             value="'.self::getCsrf().'">';
     }
 
-    public function validateCsrf():bool{
+    public static function validateCsrf():bool{
         $input = post(self::CSRF_INPUT_NAME);
         $session = self::getCsrf();
         $is_valid = !empty($input) && !empty($session) && hash_equals($session,$input);
