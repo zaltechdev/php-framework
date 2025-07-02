@@ -18,10 +18,15 @@ class Routing {
 		$this->http_method = $_SERVER['REQUEST_METHOD'];
 		$this->base_url = Environment::env("base_url");
 	}
+
+	
+	private const string VIEW_MAIN_PATH = __DIR__ . "/../views/main/";
+	private const string VIEW_TEMPLATES_PATH = __DIR__ . "/../views/templates/";
+	private const string VIEW_ERRORS_PATH = __DIR__ . "/../views/errors/";
 	
 	public static function notFound():never{
 		http_response_code(HTTP_NOT_FOUND);
-		$notfound = VIEW_ERRORS_PATH . HTTP_NOT_FOUND . ".php";
+		$notfound = self::VIEW_ERRORS_PATH . HTTP_NOT_FOUND . ".php";
 		if(file_exists($notfound)){
 			require_once $notfound;
 			die();
@@ -32,7 +37,7 @@ class Routing {
 	
 	public static function methodNotAllowed():never{
 		http_response_code(HTTP_METHOD_NOT_ALLOWED);
-		$method_error = VIEW_ERRORS_PATH . HTTP_METHOD_NOT_ALLOWED . ".php";
+		$method_error = self::VIEW_ERRORS_PATH . HTTP_METHOD_NOT_ALLOWED . ".php";
 		if(file_exists($method_error)){
 			require_once $method_error;
 			die();
@@ -43,7 +48,7 @@ class Routing {
 	
 	public static function internalError():never{
 		http_response_code(HTTP_INTERNAL_ERROR);
-		$internal_error = VIEW_ERRORS_PATH . HTTP_INTERNAL_ERROR . ".php";
+		$internal_error = self::VIEW_ERRORS_PATH . HTTP_INTERNAL_ERROR . ".php";
 		if(file_exists($internal_error)){
 			require_once $internal_error;
 			die();
@@ -54,7 +59,7 @@ class Routing {
 	
 	public static function unavailable():never{
 		http_response_code(HTTP_SERVICE_UNAVAILABLE);
-		$unavailable = VIEW_ERRORS_PATH . HTTP_SERVICE_UNAVAILABLE . ".php";
+		$unavailable = self::VIEW_ERRORS_PATH . HTTP_SERVICE_UNAVAILABLE . ".php";
 		if(file_exists($unavailable)){
 			require_once $unavailable;
 			die();
@@ -64,7 +69,7 @@ class Routing {
 	
 	public static function forbidden():never{
 		http_response_code(HTTP_FORBIDDEN);
-		$forbidden = VIEW_ERRORS_PATH . HTTP_FORBIDDEN . ".php";
+		$forbidden = self::VIEW_ERRORS_PATH . HTTP_FORBIDDEN . ".php";
 		if(file_exists($forbidden)){
 			require_once $forbidden;
 			die();
@@ -74,7 +79,7 @@ class Routing {
 	
 	public static function badRequest():never{
 		http_response_code(HTTP_BAD_REQUEST);
-		$bad_request = VIEW_ERRORS_PATH . HTTP_BAD_REQUEST . ".php";
+		$bad_request = self::VIEW_ERRORS_PATH . HTTP_BAD_REQUEST . ".php";
 		if(file_exists($bad_request)){
 			require_once $bad_request;
 			die();
@@ -84,7 +89,7 @@ class Routing {
 	
 	public static function unauthorized():never{
 		http_response_code(HTTP_UNAUTHORIZED);
-		$unauthorized = VIEW_ERRORS_PATH . HTTP_UNAUTHORIZED . ".php";
+		$unauthorized = self::VIEW_ERRORS_PATH . HTTP_UNAUTHORIZED . ".php";
 		if(file_exists($unauthorized)){
 			require_once $unauthorized;
 			die();
@@ -92,7 +97,7 @@ class Routing {
 		die("<center><h2>401 Unauthorized</h2></center>");
 	}
 
-	private function buildRoute(string $http_method, string $path, array | callable $controller, array | callable $middleware):void{
+	private function buildRoute(string $http_method, string $path, array | callable $controller, array | callable $middleware = []):void{
 		if(hash_equals($http_method,$this->http_method)){
 			$this->routes[] = [
 				"path" => $path,
@@ -102,11 +107,11 @@ class Routing {
 		}
 	}
 
-	public function get(string $path, array | callable $controller, array | callable $middleware):void{
+	public function get(string $path, array | callable $controller, array | callable $middleware = []):void{
 		$this->buildRoute("GET",$path,$controller, $middleware);
 	}
 	
-	public function post(string $path, array | callable $controller, array | callable $middleware):void{
+	public function post(string $path, array | callable $controller, array | callable $middleware = []):void{
 		$this->buildRoute("POST",$path,$controller, $middleware);
 	}
 
@@ -165,7 +170,7 @@ class Routing {
 					header("Content-Type:text/html");
 					http_response_code($return['view']['code'] ?? 200);
 					
-					$view = VIEW_MAIN_PATH . $return['view']['name'] . ".php";
+					$view = self::VIEW_MAIN_PATH . $return['view']['name'] . ".php";
 					if(!file_exists($view)){
 						self::catchRouterError("View $view does not exist!");
 						self::internalError();

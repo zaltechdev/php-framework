@@ -4,6 +4,7 @@ namespace App\Core;
 
 class Session{
 
+    private const string DEFAULT_SESSION_ID_NAME = "sessid";
     private static $status;
     
     public function __construct(){
@@ -17,7 +18,7 @@ class Session{
                     throw new \Exception("Failed to set session handler!");
                 }
                 
-                if(!session_name(Environment::env("session_cookie_idname"))){
+                if(!session_name(self::DEFAULT_SESSION_ID_NAME)){
                     throw new \Exception("Failed to set PHP session id name!");                
                 }
                 

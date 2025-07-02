@@ -9,6 +9,8 @@ use Dotenv\Exception\ValidationException;
 
 class Environment{
 
+	private const string ROOT_DIR = __DIR__ . "/../../";
+
 	private function catchEnvError(string $message){
 		Logging::record("error",$message,self::class);
 		Routing::internalError();
@@ -16,12 +18,12 @@ class Environment{
 
 	public function __construct(){
 		try{
-			$env_file = ROOT_DIR . ".env";
+			$env_file = self::ROOT_DIR . ".env";
 			if(!file_exists($env_file)){
 				throw new InvalidPathException("Env file does not exist, invalid path, or missing!");
 			}
 			
-			\Dotenv\Dotenv::createImmutable(ROOT_DIR)->safeLoad();
+			\Dotenv\Dotenv::createImmutable(self::ROOT_DIR)->safeLoad();
 		}
 		catch(InvalidFileException $error){
 			$this->catchEnvError($error);

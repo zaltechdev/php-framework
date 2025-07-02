@@ -15,12 +15,16 @@ class Logging{
         ini_set("display_errors",0);
     }
 
+    
+    private const string APP_MODE_PROD = "production";
+    private const string APP_MODE_MAIN = "maintenance";
+
     private function errorReportingHandler(){
 		$mode = Environment::env("app_mode");
-		if($mode === APP_MODE_PROD){
+		if($mode === self::APP_MODE_PROD){
 			$this->turnOffErrorDisplay();
 		}
-		else if($mode === APP_MODE_MAIN){
+		else if($mode === self::APP_MODE_MAIN){
 			$this->turnOffErrorDisplay();
 			Routing::unavailable();
 		}
@@ -47,15 +51,17 @@ class Logging{
     }
 
     private static array $loggers = [];
+    private const string DEFAULT_TIMEZONE = "UTC";
+    private const string LOG_DIR = __DIR__ . "/../../storages/logs/";
 
     private static function getLogger(string $trace): Logger {
-        $timezone_log = !self::$is_timezone_true ? DEFAULT_TIMEZONE : self::$timezone;
+        $timezone_log = !self::$is_timezone_true ? self::DEFAULT_TIMEZONE : self::$timezone;
         $filename_with_datetime_format = (new \DateTime("now", new \DateTimeZone($timezone_log)))->format("d-m-Y");
 
         if (!isset(self::$loggers[$trace])) {
             $logger = new Logger($trace);
             $logger->setTimezone(new \DateTimeZone($timezone_log));
-            $logger->pushHandler(new StreamHandler(LOG_DIR . "$filename_with_datetime_format.log"));
+            $logger->pushHandler(new StreamHandler(self::LOG_DIR . "$filename_with_datetime_format.log"));
             self::$loggers[$trace] = $logger;
         }
 

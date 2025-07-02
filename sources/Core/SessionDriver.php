@@ -7,7 +7,7 @@ use SessionHandlerInterface;
 class SessionDriver implements SessionHandlerInterface{
 
 	private static ?\PDO $connection = null;
-	private const string DEFAULT_SESSION_DB_FILENAME = "session.db";
+	private const string DEFAULT_SESSION_DB_FILENAME = __DIR__ . "/../../storages/session/session.db";
 
 	private const string SESSION_CREATE_TABLE_QUERY =
 		"CREATE TABLE IF NOT EXISTS session_store (
@@ -24,15 +24,13 @@ class SessionDriver implements SessionHandlerInterface{
 
 	public function __construct() {
 		try {
-			$session_db_file = SESSION_DB_DIR . self::DEFAULT_SESSION_DB_FILENAME;
-
-			if (!file_exists($session_db_file)) {
-				if (!file_put_contents($session_db_file, "")) {
-					throw new \Exception("Cannot create session DB at: $session_db_file");
+			if (!file_exists(self::DEFAULT_SESSION_DB_FILENAME)) {
+				if (!file_put_contents(self::DEFAULT_SESSION_DB_FILENAME, "")) {
+					throw new \Exception("Cannot create session DB!");
 				}
 			}
 
-			$pdo = self::getConnection($session_db_file);
+			$pdo = self::getConnection(self::DEFAULT_SESSION_DB_FILENAME);
 			$pdo->exec(statement: self::SESSION_CREATE_TABLE_QUERY);
 		}
 		catch (\Throwable $error) {
