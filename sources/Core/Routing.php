@@ -181,7 +181,7 @@ class Routing {
 					exit;
 				}
 				else if(isset($return['file'])){					
-					$uploaded_file = UPLOAD_DIR . $return['file'];
+					$uploaded_file = Database::UPLOAD_DIR . $return['file'];
 					if(file_exists($uploaded_file)){
 
 						$mime_type = mime_content_type($uploaded_file);
