@@ -9,11 +9,11 @@ use PHPMailer\PHPMailer\SMTP;
 class Mailer{
 
     public static function send(string $recepient, string $subject, string $message): bool{
-        $hostname = Environment::env("mailer_hostname");
-        $username = Environment::env("mailer_username");
-        $password = Environment::env("mailer_password");
-        $portnumber = Environment::env("mailer_portnumber");
-        $sendername = Environment::env("mailer_sendername");
+        $hostname = env("mailer_hostname");
+        $username = env("mailer_username");
+        $password = env("mailer_password");
+        $portnumber = env("mailer_portnumber");
+        $sendername = env("mailer_sendername");
 
         $mail = new PHPMailer(true);
 

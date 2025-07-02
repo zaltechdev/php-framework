@@ -16,7 +16,7 @@ class Routing {
 	public function __construct(){
 		$this->uri = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH) ?? "/";
 		$this->http_method = $_SERVER['REQUEST_METHOD'];
-		$this->base_url = Environment::env("base_url");
+		$this->base_url = env("base_url");
 	}
 
 	

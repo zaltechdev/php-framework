@@ -9,7 +9,11 @@ function js(string $js_name){
 }
 
 function csrf_field(){
-	(new \App\Core\Security())->csrfField();
+	\App\Core\Security::csrfField();
+}
+
+function env(string $key){
+	return \App\Core\Environment::env($key);
 }
 
 function generate_6digit_token(){
@@ -47,7 +51,7 @@ function global_assets(array $css, array $js){
 }
 
 function get_app_name(){
-	return App\Core\Environment::env("app_name");
+	return env("app_name");
 }
 
 
@@ -97,5 +101,5 @@ function get_user_device_info(){
 }
 
 function url(string $path){
-	return rtrim(App\Core\Environment::env("base_url"),"/") . "/" . ltrim($path,"/");
+	return rtrim(env("base_url"),"/") . "/" . ltrim($path,"/");
 }

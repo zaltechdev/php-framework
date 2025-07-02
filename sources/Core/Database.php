@@ -10,11 +10,11 @@ class Database {
 
     private static function connect(): \PDO {
         if (self::$pdo === null) {
-            $driver   = Environment::env("database_driver_prefix");
-            $host     = Environment::env("database_hostname");
-            $dbname   = Environment::env("database_dbname");
-            $username = Environment::env("database_username");
-            $password = Environment::env("database_password");
+            $driver   = env("database_driver_prefix");
+            $host     = env("database_hostname");
+            $dbname   = env("database_dbname");
+            $username = env("database_username");
+            $password = env("database_password");
 
             $dsn = "$driver:host=$host;dbname=$dbname";
 

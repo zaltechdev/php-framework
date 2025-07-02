@@ -10,7 +10,7 @@ class Logging{
     private static string $timezone;
     private static bool $is_timezone_true = false;
 	
-    private function turnOffErrorDisplay(){
+    private static function turnOffErrorDisplay(){
         error_reporting(0);
         ini_set("display_errors",0);
     }
@@ -19,19 +19,19 @@ class Logging{
     private const string APP_MODE_PROD = "production";
     private const string APP_MODE_MAIN = "maintenance";
 
-    private function errorReportingHandler(){
-		$mode = Environment::env("app_mode");
+    private static function errorReportingHandler(){
+		$mode = env("app_mode");
 		if($mode === self::APP_MODE_PROD){
-			$this->turnOffErrorDisplay();
+			self::turnOffErrorDisplay();
 		}
 		else if($mode === self::APP_MODE_MAIN){
-			$this->turnOffErrorDisplay();
+			self::turnOffErrorDisplay();
 			Routing::unavailable();
 		}
     }
 
-    private function timezoneSetting(){
-        self::$timezone = Environment::env("app_timezone");
+    private static function timezoneSetting(){
+        self::$timezone = env("app_timezone");
         if(!in_array(self::$timezone,timezone_identifiers_list())){
             throw new \Exception("Invalid timezone setting value!");
         }
@@ -41,8 +41,8 @@ class Logging{
 
     public function __construct(){
         try{
-            $this->errorReportingHandler();
-            $this->timezoneSetting();
+            self::errorReportingHandler();
+            self::timezoneSetting();
         }
         catch(\Exception $error){
             self::record("error",$error,self::class);

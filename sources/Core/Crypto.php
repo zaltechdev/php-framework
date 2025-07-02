@@ -17,8 +17,8 @@ class Crypto{
 
     public function __construct(){
         if(self::$symmetric === null){
-            $algo = Environment::env("encrypt_algo_method");
-            $key = Environment::env("encrypt_keyphrase");
+            $algo = env("encrypt_algo_method");
+            $key = env("encrypt_keyphrase");
     
             try{
                 $symmetric = new Symmetric();
