@@ -9,7 +9,7 @@ function js(string $js_name){
 }
 
 function csrf_field(){
-	App\Core\Security::csrfField();
+	(new \App\Core\Security())->csrfField();
 }
 
 function generate_6digit_token(){

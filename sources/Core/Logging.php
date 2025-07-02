@@ -6,6 +6,9 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 class Logging{
+
+    private static string $timezone;
+    private static bool $is_timezone_true = false;
 	
     private function turnOffErrorDisplay(){
         error_reporting(0);
@@ -24,11 +27,12 @@ class Logging{
     }
 
     private function timezoneSetting(){
-        $timezone = Environment::env("app_timezone");
-        if(!in_array($timezone,timezone_identifiers_list())){
+        self::$timezone = Environment::env("app_timezone");
+        if(!in_array(self::$timezone,timezone_identifiers_list())){
             throw new \Exception("Invalid timezone setting value!");
         }
-        date_default_timezone_set($timezone);
+        date_default_timezone_set(self::$timezone);
+        self::$is_timezone_true = true;
     }
 
     public function __construct(){
@@ -45,11 +49,12 @@ class Logging{
     private static array $loggers = [];
 
     private static function getLogger(string $trace): Logger {
-        $filename_with_datetime_format = (new \DateTime("now", new \DateTimeZone(DEFAULT_TIMEZONE)))->format("d-m-Y");
+        $timezone_log = !self::$is_timezone_true ? DEFAULT_TIMEZONE : self::$timezone;
+        $filename_with_datetime_format = (new \DateTime("now", new \DateTimeZone($timezone_log)))->format("d-m-Y");
 
         if (!isset(self::$loggers[$trace])) {
             $logger = new Logger($trace);
-            $logger->setTimezone(new \DateTimeZone(DEFAULT_TIMEZONE));
+            $logger->setTimezone(new \DateTimeZone($timezone_log));
             $logger->pushHandler(new StreamHandler(LOG_DIR . "$filename_with_datetime_format.log"));
             self::$loggers[$trace] = $logger;
         }
