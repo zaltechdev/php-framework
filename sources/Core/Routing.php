@@ -92,42 +92,66 @@ class Routing {
 		die("<center><h2>401 Unauthorized</h2></center>");
 	}
 
-	private function buildRoute(string $http_method, string $path, array | callable $controller):void{
+	private function buildRoute(string $http_method, string $path, array | callable $controller, array | callable $middleware):void{
 		if(hash_equals($http_method,$this->http_method)){
 			$this->routes[] = [
 				"path" => $path,
-				"controller" => $controller
+				"controller" => $controller,
+				"middleware" => $middleware
 			];
 		}
 	}
 
-	public function get(string $path, array | callable $controller):void{
-		$this->buildRoute("GET",$path,$controller);
+	public function get(string $path, array | callable $controller, array | callable $middleware):void{
+		$this->buildRoute("GET",$path,$controller, $middleware);
 	}
 	
-	public function post(string $path, array | callable $controller):void{
-		$this->buildRoute("POST",$path,$controller);
+	public function post(string $path, array | callable $controller, array | callable $middleware):void{
+		$this->buildRoute("POST",$path,$controller, $middleware);
 	}
 
-	private function headers(){
+	private static function headers(){
 		header_remove("X-Powered-By");
 	}
 	
 	public function run():void{
-		$this->headers();
+		self::headers();
+
 		foreach($this->routes as $route){
 			if(hash_equals($route['path'],$this->uri)){
 
+				$return = [];
+
+				if(!empty($route['middleware'])){
+					foreach($route['middleware'] as $middlewares){
+						if(!is_callable($route['middleware'])){
+
+							[$middleware_class,$middleware_method] = [$route['middleware'][0] ?? "",$route['middleware'][1] ?? ""];
+
+							if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
+								self::catchRouterError("Class middleware or method middleware does not exist!");
+								self::internalError();
+							}
+	
+							$return = (new $middleware_class)->$middleware_method();
+						}
+						else{
+							$middleware_function = $route['middleware'];
+							$return = $middleware_function();	
+						}
+					}
+				}
+
 				if(!is_callable($route['controller'])){
-					$controller_class = $route['controller'][0] ?? "";
-					$controller_method = $route['controller'][1] ?? "";
+
+					[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
 					
 					if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
 						self::catchRouterError("Class controller or method controller does not exist!");
 						self::internalError();
 					}
 					
-					$return = (new $controller_class())->$controller_method();
+					$return = (new $controller_class())->$controller_method($return);
 				}
 				else{
 					$controller_function = $route['controller'];
@@ -135,8 +159,7 @@ class Routing {
 				}
 				
 				if(isset($return['redirect'])){
-					$trimmed_redirect_path = rtrim($this->base_url,"/") . "/" . ltrim($return['redirect'],"/");
-					header("location:$trimmed_redirect_path");
+					header("location:" . url($return['redirect']));
 					exit;
 				}
 				else if(isset($return['view'])){
@@ -153,14 +176,16 @@ class Routing {
 					require_once $view; 
 					exit;
 				}
-				else if(isset($return['file'])){
+				else if(isset($return['file'])){					
 					$uploaded_file = UPLOAD_DIR . $return['file'];
 					if(file_exists($uploaded_file)){
+
 						$mime_type = mime_content_type($uploaded_file);
-						if($mime_type){
+						if(!$mime_type){
 							self::catchRouterError("Failed to get file mime type!");
 							self::internalError();
 						}
+
 						header("Content-Type:$mime_type");
 						if(!readfile($uploaded_file)){
 							header("Content-Type:text/html");
