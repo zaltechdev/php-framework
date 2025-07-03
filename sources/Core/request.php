@@ -8,22 +8,22 @@ function get(string $key):string{
 	return htmlspecialchars($_GET[$key] ?? "");
 }
 
-function posts(array $keys):array{
+function posts(array $keys):object{
 	$data = [];
 	foreach($keys as $key){
 		$data[$key] = post($key);
 	}
 	
-	return $data;
+	return (object) $data;
 }
 
-function gets(array $keys):array{
+function gets(array $keys):object{
 	$data = [];
 	foreach($keys as $key){
 		$data[$key] = get($key);
 	}
 	
-	return $data;
+	return (object) $data;
 }
 
 function set_session(string $key, mixed $value):void{
