@@ -15,7 +15,7 @@ class Environment{
 		Logging::record("error",$message,self::class);
 		Routing::internalError();
 	}
-
+	
 	public function __construct(){
 		try{
 			$env_file = self::ROOT_DIR . ".env";

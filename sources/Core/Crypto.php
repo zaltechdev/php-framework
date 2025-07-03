@@ -7,7 +7,7 @@ use MiladRahimi\PhpCrypt\Exceptions\MethodNotSupportedException;
 use MiladRahimi\PhpCrypt\Symmetric;
 
 class Crypto{
-
+    
     private static $symmetric;
 	
 	private function catchCryptoError(string $message){
@@ -40,7 +40,7 @@ class Crypto{
                 
         self::$symmetric = $symmetric;
     }
-
+    
     public static function encrypt(string $plain_string){
         return base64_encode(self::$symmetric->encrypt($plain_string));
     } 

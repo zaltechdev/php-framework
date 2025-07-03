@@ -1,6 +1,6 @@
 <?php
 
-function view(string $name, array $data = [], int $code = 200):array{
+function view(string $name, array $data = [], int $code = HTTP_OK):array{
 	return [
 		"view" => [
 			"data" => $data,

@@ -26,7 +26,7 @@ class Database {
         return self::$pdo;
     }
 
-    public static function query(string $sql, array $params = []) {
+    protected static function query(string $sql, array $params = []) {
         try {
             $stmt = self::connect()->prepare($sql);
             $stmt->execute($params);
@@ -38,10 +38,10 @@ class Database {
         }
     }
 
-    protected static function result(null|bool|array $data, string $message){
+    protected static function result(array $data, bool $is_error = false){
         return (object) [
             "data" => $data,
-            "message" => $message
+            "error" => $is_error
         ];
     }
 }

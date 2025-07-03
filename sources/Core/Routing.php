@@ -156,7 +156,7 @@ class Routing {
 				}
 				else if(isset($return->view)){
 					header("Content-Type:text/html");
-					http_response_code($return->view['code'] ?? 200);
+					http_response_code($return->view['code'] ?? HTTP_OK);
 					
 					$view = self::VIEW_MAIN_PATH . $return->view['name'] . ".php";
 					if(!file_exists($view)){
