@@ -4,3 +4,7 @@ vendor
 *.log
 *.sql
 *.db
+TestController.php
+testview.php
+TestModel.php
+TestMiddleware.php

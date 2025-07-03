@@ -107,11 +107,11 @@ class Routing {
 		}
 	}
 
-	public function get(string $path, array | callable $controller, array | callable $middleware = []):void{
+	public function get(string $path, array $controller, array $middleware):void{
 		$this->buildRoute("GET",$path,$controller, $middleware);
 	}
 	
-	public function post(string $path, array | callable $controller, array | callable $middleware = []):void{
+	public function post(string $path, array $controller, array $middleware):void{
 		$this->buildRoute("POST",$path,$controller, $middleware);
 	}
 
@@ -125,68 +125,51 @@ class Routing {
 		foreach($this->routes as $route){
 			if(hash_equals($route['path'],$this->uri)){
 
-				$return = [];
-
+				$middleware_return = [];
 				if(!empty($route['middleware'])){
-					$middleware_return = [];
 					foreach($route['middleware'] as $middlewares) {
-						if(!is_callable($middlewares)){
 
-							[$middleware_class,$middleware_method] = [$middlewares[0] ?? "",$middlewares[1] ?? ""];
-							if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
-								self::catchRouterError("Class middleware or method middleware does not exist!");
-								self::internalError();
-							}
+						[$middleware_class,$middleware_method] = [$middlewares[0] ?? "",$middlewares[1] ?? ""];
+						if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
+							self::catchRouterError("Class middleware or method middleware does not exist!");
+							self::internalError();
+						}
 	
-							$middleware_return = (new $middleware_class)->$middleware_method();
-						}
-						else{
-							$middleware_return = $middlewares();	
-						}
-				
-						if (is_array($middleware_return)) {
-							$return = array_merge($return, $middleware_return);
+						$middleware_result = (new $middleware_class)->$middleware_method();
+						if (is_array($middleware_result)) {
+							$middleware_return = array_merge($middleware_return, $middleware_result);
 						}
 					}
 				}
-			
 
-				if(!is_callable($route['controller'])){
-
-					[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
-					
-					if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
-						self::catchRouterError("Class controller or method controller does not exist!");
-						self::internalError();
-					}
-					
-					$return = (new $controller_class())->$controller_method($return);
-				}
-				else{
-					$controller_function = $route['controller'];
-					$return = $controller_function();
-				}
+				[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
+				if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
+					self::catchRouterError("Class controller or method controller does not exist!");
+					self::internalError();
+				}					
+				$return = (object) (new $controller_class())->$controller_method((object) $middleware_return);
 				
-				if(isset($return['redirect'])){
-					header("location:" . url($return['redirect']));
+
+				if(isset($return->redirect)){
+					header("location:" . url($return->redirect));
 					exit;
 				}
-				else if(isset($return['view'])){
+				else if(isset($return->view)){
 					header("Content-Type:text/html");
-					http_response_code($return['view']['code'] ?? 200);
+					http_response_code($return->view['code'] ?? 200);
 					
-					$view = self::VIEW_MAIN_PATH . $return['view']['name'] . ".php";
+					$view = self::VIEW_MAIN_PATH . $return->view['name'] . ".php";
 					if(!file_exists($view)){
 						self::catchRouterError("View $view does not exist!");
 						self::internalError();
 					}
 					
-					extract($return['view']['data']);
+					extract($return->view['data']);
 					require_once $view; 
 					exit;
 				}
-				else if(isset($return['file'])){					
-					$uploaded_file = Database::UPLOAD_DIR . $return['file'];
+				else if(isset($return->file)){					
+					$uploaded_file = Database::UPLOAD_DIR . $return->file;
 					if(file_exists($uploaded_file)){
 
 						$mime_type = mime_content_type($uploaded_file);
