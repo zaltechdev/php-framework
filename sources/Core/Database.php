@@ -37,4 +37,11 @@ class Database {
             return false;
         }
     }
+
+    protected static function result(null|bool|array $data, string $message){
+        return (object) [
+            "data" => $data,
+            "message" => $message
+        ];
+    }
 }
