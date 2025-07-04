@@ -37,11 +37,4 @@ class Database {
             return false;
         }
     }
-
-    protected static function result(array $data, bool $is_error = false){
-        return (object) [
-            "data" => $data,
-            "error" => $is_error
-        ];
-    }
 }

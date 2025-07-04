@@ -148,7 +148,6 @@ class Routing {
 					self::internalError();
 				}					
 				$return = (object) (new $controller_class())->$controller_method((object) $middleware_return);
-				
 
 				if(isset($return->redirect)){
 					header("location:" . url($return->redirect));
