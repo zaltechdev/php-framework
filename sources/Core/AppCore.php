@@ -18,6 +18,6 @@ new Crypto();
 
 $app = new Routing();
 
-require_once __DIR__ . "/routes.php";
+require_once __DIR__ . "/../routes/routes.php";
 
 $app->run();

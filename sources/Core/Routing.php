@@ -107,12 +107,12 @@ class Routing {
 		}
 	}
 
-	public function get(string $path, array $controller, array $middleware):void{
-		$this->buildRoute("GET",$path,$controller, $middleware);
+	public function get(string $path, array $controller):void{
+		$this->buildRoute("GET",$path,$controller);
 	}
 	
-	public function post(string $path, array $controller, array $middleware):void{
-		$this->buildRoute("POST",$path,$controller, $middleware);
+	public function post(string $path, array $controller):void{
+		$this->buildRoute("POST",$path,$controller);
 	}
 
 	private static function headers(){
@@ -125,29 +125,12 @@ class Routing {
 		foreach($this->routes as $route){
 			if(hash_equals($route['path'],$this->uri)){
 
-				$middleware_return = [];
-				if(!empty($route['middleware'])){
-					foreach($route['middleware'] as $middlewares) {
-
-						[$middleware_class,$middleware_method] = [$middlewares[0] ?? "",$middlewares[1] ?? ""];
-						if(!class_exists($middleware_class) || !method_exists($middleware_class,$middleware_method)){
-							self::catchRouterError("Class middleware or method middleware does not exist!");
-							self::internalError();
-						}
-	
-						$middleware_result = (new $middleware_class)->$middleware_method();
-						if (is_array($middleware_result)) {
-							$middleware_return = array_merge($middleware_return, $middleware_result);
-						}
-					}
-				}
-
 				[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
 				if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
 					self::catchRouterError("Class controller or method controller does not exist!");
 					self::internalError();
 				}					
-				$return = (object) (new $controller_class())->$controller_method((object) $middleware_return);
+				$return = (object) (new $controller_class())->$controller_method();
 
 				if(isset($return->redirect)){
 					header("location:" . url($return->redirect));
