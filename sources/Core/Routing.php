@@ -54,7 +54,6 @@ class Routing {
 			die();
 		} 
 		die("<center><h2>500 Internal Server Error</h2></center>");
-		
 	}
 	
 	public static function unavailable():never{
