@@ -17,6 +17,10 @@ function posts(array $keys):object{
 	return (object) $data;
 }
 
+function post_array(string $key){
+	return (object) [$key => array_map("htmlspecialchars",$_POST[$key] ?? [])];
+}
+
 function gets(array $keys):object{
 	$data = [];
 	foreach($keys as $key){
@@ -49,3 +53,4 @@ function unset_cookie(string $key):void{
 function get_cookie(string $key):mixed{
 	return $_COOKIE[$key] ?? "";
 }
+
