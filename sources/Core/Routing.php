@@ -20,9 +20,9 @@ class Routing {
 	}
 
 	
-	private const string VIEW_MAIN_PATH = __DIR__ . "/../views/main/";
-	private const string VIEW_TEMPLATES_PATH = __DIR__ . "/../views/templates/";
-	private const string VIEW_ERRORS_PATH = __DIR__ . "/../views/errors/";
+	private const VIEW_MAIN_PATH = __DIR__ . "/../views/main/";
+	private const VIEW_TEMPLATES_PATH = __DIR__ . "/../views/templates/";
+	private const VIEW_ERRORS_PATH = __DIR__ . "/../views/errors/";
 	
 	public static function notFound():never{
 		http_response_code(HTTP_NOT_FOUND);
@@ -54,6 +54,7 @@ class Routing {
 			die();
 		} 
 		die("<center><h2>500 Internal Server Error</h2></center>");
+		
 	}
 	
 	public static function unavailable():never{
@@ -129,9 +130,22 @@ class Routing {
 					self::catchRouterError("Class controller or method controller does not exist!");
 					self::internalError();
 				}					
-				$return = (object) (new $controller_class())->$controller_method();
+				$controller = new $controller_class();
+				$return = (object) $controller->$controller_method();
 
-				if(isset($return->redirect)){
+				if(isset($return->json)){
+					header("content-type:application/json");
+					header("Access-Control-Allow-Origin: " . env("base_url"));
+					header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
+					if($_SERVER['REQUEST_METHOD'] === "OPTIONS"){
+						http_response_code(HTTP_NO_CONTENT);
+						exit;
+					}
+
+					exit(json_encode($return->json));
+				}
+				else if(isset($return->redirect)){
 					header("location:" . url($return->redirect));
 					exit;
 				}
