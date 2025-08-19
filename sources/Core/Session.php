@@ -4,7 +4,7 @@ namespace App\Core;
 
 class Session{
 
-    private const string DEFAULT_SESSION_ID_NAME = "sessid";
+    private const DEFAULT_SESSION_ID_NAME = "sessid";
     private static $status;
     
     public function __construct(){
@@ -21,9 +21,20 @@ class Session{
                 if(!session_name(self::DEFAULT_SESSION_ID_NAME)){
                     throw new \Exception("Failed to set PHP session id name!");                
                 }
+
+                if(!session_set_cookie_params([
+                    "httponly" => true,
+                    "path" => "/"
+                ])){
+                    throw new \Exception("Failed to set PHP session cookie params!");    
+                }
                 
                 if(!session_start()){
                     throw new \Exception("Failed to start session!");
+                }
+
+                if(!session_gc()){
+                    throw new \Exception("Failed to start PHP session GC!");    
                 }
             }
         }
