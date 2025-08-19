@@ -21,7 +21,6 @@ class Routing {
 
 	
 	private const VIEW_MAIN_PATH = __DIR__ . "/../views/main/";
-	private const VIEW_TEMPLATES_PATH = __DIR__ . "/../views/templates/";
 	private const VIEW_ERRORS_PATH = __DIR__ . "/../views/errors/";
 	
 	public static function notFound():never{
