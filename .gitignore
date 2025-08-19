@@ -2,9 +2,8 @@ vendor
 *.env
 .vscode
 *.log
-*.sql
+*.sqlite
 *.db
 TestController.php
 testview.php
 TestModel.php
-TestMiddleware.php
