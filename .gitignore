@@ -4,6 +4,3 @@ vendor
 *.log
 *.sqlite
 *.db
-TestController.php
-testview.php
-TestModel.php

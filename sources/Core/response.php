@@ -17,7 +17,7 @@ function redirect(string $path):array{
 function json(array $data, int $code = HTTP_OK){
 	return [
 		"json" => [
-			"data" => $data,
+			"messages" => $data,
 			"code" => $code
 		]
 	];
