@@ -96,12 +96,21 @@ class Routing {
 		die("<center><h2>401 Unauthorized</h2></center>");
 	}
 
-	private function buildRoute(string $http_method, string $path, array | callable $controller, array | callable $middleware = []):void{
+	public static function customErrorPage(string $page_name, string $title, string $description, int $http_response_code){
+		http_response_code($http_response_code);
+		$custom_error_page = self::VIEW_ERRORS_PATH . "$page_name.php";
+		if(file_exists($custom_error_page)){
+			require_once $custom_error_page;
+			die();
+		} 
+		die("<center><h2>$http_response_code $title | $description</h2></center>");
+	}
+
+	private function buildRoute(string $http_method, string $path, array | callable $controller):void{
 		if(hash_equals($http_method,$this->http_method)){
 			$this->routes[] = [
 				"path" => $path,
-				"controller" => $controller,
-				"middleware" => $middleware
+				"controller" => $controller
 			];
 		}
 	}
@@ -128,7 +137,8 @@ class Routing {
 				if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
 					self::catchRouterError("Class controller or method controller does not exist!");
 					self::internalError();
-				}					
+				}	
+
 				$controller = new $controller_class();
 				$return = (object) $controller->$controller_method();
 
