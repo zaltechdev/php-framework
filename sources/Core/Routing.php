@@ -132,19 +132,7 @@ class Routing {
 				$controller = new $controller_class();
 				$return = (object) $controller->$controller_method();
 
-				if(isset($return->json)){
-					header("content-type:application/json");
-					header("Access-Control-Allow-Origin: " . env("base_url"));
-					header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-
-					if($_SERVER['REQUEST_METHOD'] === "OPTIONS"){
-						http_response_code(HTTP_NO_CONTENT);
-						exit;
-					}
-
-					exit(json_encode($return->json));
-				}
-				else if(isset($return->redirect)){
+				if(isset($return->redirect)){
 					header("location:" . url($return->redirect));
 					exit;
 				}
