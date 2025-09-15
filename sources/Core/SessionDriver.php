@@ -7,9 +7,9 @@ use SessionHandlerInterface;
 class SessionDriver implements SessionHandlerInterface{
 
 	private static ?\PDO $connection = null;
-	private const DEFAULT_SESSION_DB_FILENAME = __DIR__ . "/../../storages/session/session.db";
+	private const string DEFAULT_SESSION_DB_FILENAME = __DIR__ . "/../../storages/session/session.db";
 
-	private const SESSION_CREATE_TABLE_QUERY =
+	private const string SESSION_CREATE_TABLE_QUERY =
 		"CREATE TABLE IF NOT EXISTS session_store (
 			id TEXT PRIMARY KEY NOT NULL,
 			access INTEGER NOT NULL,
@@ -17,10 +17,10 @@ class SessionDriver implements SessionHandlerInterface{
 			device TEXT
 		)";
 
-	private const SESSION_READ_QUERY     = "SELECT data FROM session_store WHERE id = ? LIMIT 1";
-	private const SESSION_WRITE_QUERY    = "INSERT OR REPLACE INTO session_store (id, access, data, device) VALUES (?, ?, ?, ?)";
-	private const SESSION_DESTROY_QUERY  = "DELETE FROM session_store WHERE id = ?";
-	private const SESSION_GC_QUERY       = "DELETE FROM session_store WHERE access < ?";
+	private const string SESSION_READ_QUERY     = "SELECT data FROM session_store WHERE id = ? LIMIT 1";
+	private const string SESSION_WRITE_QUERY    = "INSERT OR REPLACE INTO session_store (id, access, data, device) VALUES (?, ?, ?, ?)";
+	private const string SESSION_DESTROY_QUERY  = "DELETE FROM session_store WHERE id = ?";
+	private const string SESSION_GC_QUERY       = "DELETE FROM session_store WHERE access < ?";
 
 	public function __construct() {
 		try {
