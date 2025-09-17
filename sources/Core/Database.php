@@ -2,7 +2,9 @@
 
 namespace App\Core;
 
-class Database {
+use Envms\FluentPDO\Query;
+
+abstract class Database {
 
     private static ?\PDO $pdo = null;
 
@@ -26,7 +28,7 @@ class Database {
         return self::$pdo;
     }
 
-    protected static function query(string $sql, array $params = []) {
+    protected static function rawSql(string $sql, array $params = []) {
         try {
             $stmt = self::connect()->prepare($sql);
             $stmt->execute($params);
@@ -35,6 +37,17 @@ class Database {
         catch (\PDOException $error) {
             Logging::record("error", $error, self::class);
             return false;
+        }
+    }
+
+    protected static function sql(){
+        try{
+            $fluent = new Query(self::connect());
+            return $fluent;
+        } 
+        catch(\PDOException $error){
+            Logging::record("error", $error, self::class);
+            return false;            
         }
     }
 }

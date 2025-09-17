@@ -33,4 +33,8 @@ class Security{
         self::loadCsrf();
         return $is_valid;
     }
+    
+    public static function securityFormSubmit(string $btn_name, string $btn_value){
+        return validate_submit_button($btn_name,$btn_value) && Security::validateCsrf();
+    }
 }

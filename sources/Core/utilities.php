@@ -103,3 +103,13 @@ function get_user_device_info(){
 function url(string $path){
 	return rtrim(env("base_url"),"/") . "/" . ltrim($path,"/");
 }
+
+function success_modal(string $description, string $js_action = "$(this).remove()"){
+	$modal = __DIR__ . "/../views/templates/modals/success-modal.php";
+	if(file_exists($modal)) require_once $modal;
+}
+
+function error_modal(string $description, string $js_action = "$(this).remove()"){
+	$modal = __DIR__ . "/../views/templates/modals/error-modal.php";
+	if(file_exists($modal)) require_once $modal;
+}

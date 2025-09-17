@@ -5,7 +5,8 @@
         "monolog/monolog": "^3.9",
         "vlucas/phpdotenv": "^5.6",
         "miladrahimi/phpcrypt": "^5.0",
-        "phpmailer/phpmailer": "^6.9"
+        "phpmailer/phpmailer": "^6.9",
+        "envms/fluentpdo": "^2.2"
     },
     "autoload": {
         "psr-4": {
