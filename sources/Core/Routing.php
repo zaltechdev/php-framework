@@ -115,11 +115,11 @@ class Routing {
 		}
 	}
 
-	public function get(string $path, array $controller):void{
+	public function get(string $path, array | callable $controller):void{
 		$this->buildRoute("GET",$path,$controller);
 	}
 	
-	public function post(string $path, array $controller):void{
+	public function post(string $path, array | callable $controller):void{
 		$this->buildRoute("POST",$path,$controller);
 	}
 
@@ -133,14 +133,20 @@ class Routing {
 		foreach($this->routes as $route){
 			if(hash_equals($route['path'],$this->uri)){
 
-				[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
-				if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
-					self::catchRouterError("Class controller or method controller does not exist!");
-					self::internalError();
-				}	
-
-				$controller = new $controller_class();
-				$return = (object) $controller->$controller_method();
+				if(is_callable($route['controller'])){
+					$direct_controller = $route['controller'];
+					$return = (object) $direct_controller();
+				}
+				else{
+					[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
+					if(!class_exists($controller_class) || !method_exists($controller_class,$controller_method)){
+						self::catchRouterError("Class controller or method controller does not exist!");
+						self::internalError();
+					}	
+	
+					$controller = new $controller_class();
+					$return = (object) $controller->$controller_method();
+				}
 
 				if(isset($return->redirect)){
 					header("location:" . url($return->redirect));

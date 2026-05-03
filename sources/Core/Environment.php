@@ -39,8 +39,8 @@ class Environment{
 		}
 	}
 
-	public static function env(string $key){
-		return $_ENV[$key] ?? "";
+	public static function env(string $key, $default){
+		return $_ENV[$key] ?? $default;
 	}
 }
 

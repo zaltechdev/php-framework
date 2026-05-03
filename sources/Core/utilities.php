@@ -8,12 +8,25 @@ function js(string $js_name){
 	return "/assets/js/$js_name.js";
 }
 
+function css_js_assets(array $css, array $js){
+	foreach($css as $cssfile){
+		echo '<link href="/assets/css/'.$cssfile.'.css" rel="stylesheet">';	
+		}
+	foreach($js as $jsfile){
+		echo '<script src="/assets/js/'.$jsfile.'.js"></script>';	
+	}
+}
+
+function favicon(string $name = "favicon.ico"){
+	return '<link rel="shortcut icon" href="'.$name.'" type="image/x-icon">';
+}
+
 function csrf_field(){
 	\App\Core\Security::csrfField();
 }
 
-function env(string $key){
-	return \App\Core\Environment::env($key);
+function env(string $key, $default = ""){
+	return \App\Core\Environment::env($key, $default);
 }
 
 function generate_6digit_token(){
@@ -53,7 +66,6 @@ function global_assets(array $css, array $js){
 function get_app_name(){
 	return env("app_name");
 }
-
 
 function get_user_device_info(){
 
@@ -105,11 +117,11 @@ function url(string $path){
 }
 
 function success_modal(string $description, string $js_action = "$(this).remove()"){
-	$modal = __DIR__ . "/../views/templates/modals/success-modal.php";
+	$modal = __DIR__ . "/../views/templates/modals/success.php";
 	if(file_exists($modal)) require_once $modal;
 }
 
 function error_modal(string $description, string $js_action = "$(this).remove()"){
-	$modal = __DIR__ . "/../views/templates/modals/error-modal.php";
+	$modal = __DIR__ . "/../views/templates/modals/error.php";
 	if(file_exists($modal)) require_once $modal;
 }

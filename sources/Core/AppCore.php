@@ -6,6 +6,7 @@ use App\Core\Logging;
 use App\Core\Routing;
 use App\Core\Session;
 
+require_once __DIR__ . "/constants.php";
 require_once __DIR__ . "/configs.php";
 require_once __DIR__ . "/request.php";
 require_once __DIR__ . "/response.php";
