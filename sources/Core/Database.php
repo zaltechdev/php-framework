@@ -8,8 +8,6 @@ abstract class Database {
 
     private static ?\PDO $pdo = null;
 
-    public const UPLOAD_DIR = __DIR__ . "/../../storages/uploads/";
-
     private static function connect(): \PDO {
         if (self::$pdo === null) {
             $driver   = env("database_driver_prefix");
