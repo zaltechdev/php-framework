@@ -1,5 +1,40 @@
 <?php
 
+function method():string{
+	return $_SERVER['REQUEST_METHOD'];
+}
+
+function input(string $key, $default = null){
+	$input_data = null;
+
+	if($input_data === null){
+		$method = method();
+		if($method === "GET"){
+			$input_data = $_GET;
+		}
+		else if($method === "POST"){
+			$input_data = $_POST;
+		}
+		else{
+			// For PUT, PATCH, DELETE
+			$raw_input = file_get_contents("php://input");
+			
+			// Try to parse JSON first
+			$json_data = json_decode($raw_input, true);
+			if(json_last_error() === JSON_ERROR_NONE){
+				$input_data = $json_data;
+			}
+			else{
+				// Fallback to query string format (x-www-form-urlencoded)
+				parse_str($raw_input, $parsed_data);
+				$input_data = $parsed_data;
+			}
+		}
+	}
+
+	return htmlspecialchars($input_data[$key] ?? $default);
+}
+
 function post(string $key):string{
 	return htmlspecialchars($_POST[$key] ?? "");
 }

@@ -6,7 +6,6 @@ class Routing {
 	
 	private string $uri;
 	private string $http_method;
-	private string $base_url;
 	private array $routes = [];
 
 	private static function catchRouterError(string $message):void{
@@ -16,11 +15,10 @@ class Routing {
 	public function __construct(){
 		$this->uri = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH) ?? "/";
 		$this->http_method = $_SERVER['REQUEST_METHOD'];
-		$this->base_url = env("base_url");
 	}
 
 	
-	private const VIEW_MAIN_PATH = __DIR__ . "/../views/main/";
+	private const VIEW_MAIN_PATH = __DIR__ . "/../views/pages/";
 	private const VIEW_ERRORS_PATH = __DIR__ . "/../views/errors/";
 	
 	public static function notFound():never{
@@ -123,19 +121,38 @@ class Routing {
 		$this->buildRoute("POST",$path,$controller);
 	}
 
+	public function put(string $path, array | callable $controller):void{
+		$this->buildRoute("PUT",$path,$controller);
+	}
+
+	public function patch(string $path, array | callable $controller):void{
+		$this->buildRoute("PATCH",$path,$controller);
+	}
+
+	public function delete(string $path, array | callable $controller):void{
+		$this->buildRoute("DELETE",$path,$controller);
+	}
+
 	private static function headers(){
 		header_remove("X-Powered-By");
 	}
 	
 	public function run():void{
 		self::headers();
+		Security::checkCsrf();
 
 		foreach($this->routes as $route){
-			if(hash_equals($route['path'],$this->uri)){
+			// Convert {param} to regex named group (?P<param>[^/]+)
+			$pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $route['path']);
+			$pattern = "#^" . $pattern . "$#";
+
+			if(preg_match($pattern, $this->uri, $matches)){
+				// Filter matches to only get named groups (parameters)
+				$params = array_filter($matches, fn($key) => !is_int($key), ARRAY_FILTER_USE_KEY);
 
 				if(is_callable($route['controller'])){
 					$direct_controller = $route['controller'];
-					$return = (object) $direct_controller();
+					$return = (object) $direct_controller(...$params);
 				}
 				else{
 					[$controller_class,$controller_method] = [$route['controller'][0] ?? "",$route['controller'][1] ?? ""];
@@ -145,7 +162,7 @@ class Routing {
 					}	
 	
 					$controller = new $controller_class();
-					$return = (object) $controller->$controller_method();
+					$return = (object) $controller->$controller_method(...$params);
 				}
 
 				if(isset($return->redirect)){
